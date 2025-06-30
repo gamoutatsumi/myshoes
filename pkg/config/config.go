@@ -30,6 +30,8 @@ type Conf struct {
 
 	DockerHubCredential     DockerHubCredential
 	ProvideDockerHubMetrics bool
+
+	EnableRescueWorkflow bool
 }
 
 // DockerHubCredential is type of config value
@@ -71,6 +73,7 @@ const (
 	EnvDockerHubUsername         = "DOCKER_HUB_USERNAME"
 	EnvDockerHubPassword         = "DOCKER_HUB_PASSWORD"
 	EnvProvideDockerHubMetrics   = "PROVIDE_DOCKER_HUB_METRICS"
+	EnvEnableRescueWorkflow      = "ENABLE_RESCUE_WORKFLOW"
 )
 
 // ModeWebhookType is type value for GitHub webhook

@@ -46,19 +46,21 @@ var (
 
 // Starter is dispatcher for running job
 type Starter struct {
-	ds              datastore.Datastore
-	safety          safety.Safety
-	runnerVersion   string
-	notifyEnqueueCh <-chan struct{}
+	ds                   datastore.Datastore
+	safety               safety.Safety
+	runnerVersion        string
+	notifyEnqueueCh      <-chan struct{}
+	enableRescueWorkflow bool
 }
 
 // New create starter instance
-func New(ds datastore.Datastore, s safety.Safety, runnerVersion string, notifyEnqueueCh <-chan struct{}) *Starter {
+func New(ds datastore.Datastore, s safety.Safety, runnerVersion string, enableRescueWorkflow bool, notifyEnqueueCh <-chan struct{}) *Starter {
 	return &Starter{
-		ds:              ds,
-		safety:          s,
-		runnerVersion:   runnerVersion,
-		notifyEnqueueCh: notifyEnqueueCh,
+		ds:                   ds,
+		safety:               s,
+		runnerVersion:        runnerVersion,
+		notifyEnqueueCh:      notifyEnqueueCh,
+		enableRescueWorkflow: enableRescueWorkflow,
 	}
 }
 
@@ -75,7 +77,9 @@ func (s *Starter) Loop(ctx context.Context) error {
 		for {
 			select {
 			case <-ticker.C:
-				s.reRunWorkflow(ctx)
+				if s.enableRescueWorkflow {
+					s.reRunWorkflow(ctx)
+				}
 			case <-ctx.Done():
 				return nil
 			}
@@ -445,7 +449,7 @@ func enqueueRescueRun(ctx context.Context, pendingRun datastore.PendingWorkflowR
 		// Get full installation data from cache
 		installation, err := gh.GetInstallationByID(ctx, installationID)
 		if err != nil {
-      logger.Logf(false, "failed to get installation from cache (installationID: %d), using minimal data: %+v", installationID, err)
+			logger.Logf(false, "failed to get installation from cache (installationID: %d), using minimal data: %+v", installationID, err)
 			// Fallback to minimal installation data
 			installation = &github.Installation{
 				ID: &installationID,
@@ -461,7 +465,7 @@ func enqueueRescueRun(ctx context.Context, pendingRun datastore.PendingWorkflowR
 				Name:  owner.Name,
 			}
 		}
-		
+
 		event := &github.WorkflowJobEvent{
 			WorkflowJob:  job,
 			Action:       github.String("queued"),

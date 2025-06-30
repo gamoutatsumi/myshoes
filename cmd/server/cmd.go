@@ -65,7 +65,7 @@ func newShoes() (*myShoes, error) {
 	}
 
 	unlimit := unlimited.Unlimited{}
-	s := starter.New(ds, unlimit, config.Config.RunnerVersion, notifyEnqueueCh)
+	s := starter.New(ds, unlimit, config.Config.RunnerVersion, config.Config.EnableRescueWorkflow, notifyEnqueueCh)
 
 	manager := runner.New(ds, config.Config.RunnerVersion)
 

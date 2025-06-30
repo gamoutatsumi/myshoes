@@ -148,6 +148,11 @@ func LoadWithDefault() Conf {
 		c.ShoesPluginOutputPath = os.Getenv(EnvShoesPluginOutputPath)
 	}
 
+	c.EnableRescueWorkflow = false
+	if os.Getenv(EnvEnableRescueWorkflow) == "true" {
+		c.EnableRescueWorkflow = true
+	}
+
 	Config = c
 	return c
 }
